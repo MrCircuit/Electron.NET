@@ -27,19 +27,29 @@ namespace ElectronNET.CLI.Commands
             {
                 Console.WriteLine("Start Electron Desktop Application...");
 
-                string aspCoreProjectPath = "";
+                var aspCoreProjectPath = Directory.GetCurrentDirectory();
+                var argumentString = "";
 
-                if (_args.Length > 0)
+                for (var i = 0; i < _args.Length; i++)
                 {
-                    if (Directory.Exists(_args[0]))
+                    var cmd = _args[i];
+                    if (!cmd.StartsWith("--") || (i == _args.Length - 1))
+                        continue;
+                    switch (cmd)
                     {
-                        aspCoreProjectPath = _args[0];
+                        case "--path":
+                            var projectPath = _args[++i];
+                            if (Directory.Exists(projectPath))
+                                aspCoreProjectPath = projectPath;
+                            break;
+                        case "--args":
+                            argumentString = " " + _args[++i];
+                            break;
                     }
                 }
-                else
-                {
-                    aspCoreProjectPath = Directory.GetCurrentDirectory();
-                }
+
+                Console.WriteLine(aspCoreProjectPath);
+                Console.WriteLine(argumentString);
 
                 string tempPath = Path.Combine(aspCoreProjectPath, "obj", "Host");
                 if (Directory.Exists(tempPath) == false)
@@ -84,18 +94,17 @@ namespace ElectronNET.CLI.Commands
                 }
 
                 string path = Path.Combine(tempPath, "node_modules", ".bin");
-
-
+               
                 bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
                 if (isWindows)
                 {
                     Console.WriteLine("Invoke electron.cmd - in dir: " + path);
-                    ProcessHelper.CmdExecute(@"electron.cmd ""..\..\main.js""", path);
+                    ProcessHelper.CmdExecute(@"electron.cmd ""..\..\main.js""" + argumentString, path);
                 }
                 else
                 {
                     Console.WriteLine("Invoke electron - in dir: " + path);
-                    ProcessHelper.CmdExecute(@"./electron ""../../main.js""", path);
+                    ProcessHelper.CmdExecute(@"./electron ""../../main.js""" + argumentString, path);
                 }
 
                 return true;

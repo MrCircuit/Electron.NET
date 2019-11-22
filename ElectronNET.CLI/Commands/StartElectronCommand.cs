@@ -30,21 +30,29 @@ namespace ElectronNET.CLI.Commands
                 var aspCoreProjectPath = Directory.GetCurrentDirectory();
                 var argumentString = "";
 
-                for (var i = 0; i < _args.Length; i++)
+                if (_args.Length == 1)
                 {
-                    var cmd = _args[i];
-                    if (!cmd.StartsWith("--") || (i == _args.Length - 1))
-                        continue;
-                    switch (cmd)
+                    if (Directory.Exists(_args[0]))
+                        aspCoreProjectPath = _args[0];
+                }
+                else
+                {
+                    for (var i = 0; i < _args.Length; i++)
                     {
-                        case "--path":
-                            var projectPath = _args[++i];
-                            if (Directory.Exists(projectPath))
-                                aspCoreProjectPath = projectPath;
-                            break;
-                        case "--args":
-                            argumentString = " " + _args[++i];
-                            break;
+                        var cmd = _args[i];
+                        if (!cmd.StartsWith("--") || (i == _args.Length - 1))
+                            continue;
+                        switch (cmd)
+                        {
+                            case "--path":
+                                var projectPath = _args[++i];
+                                if (Directory.Exists(projectPath))
+                                    aspCoreProjectPath = projectPath;
+                                break;
+                            case "--args":
+                                argumentString = " " + _args[++i];
+                                break;
+                        }
                     }
                 }
 
